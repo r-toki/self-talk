@@ -1,0 +1,42 @@
+{
+  "db": "PostgreSQL",
+  "6f098ae565e71da0298b189267a25d1fa07cb605163cb349f51a5c566db56dd5": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        select id, name from users\n        where id = $1\n        "
+  },
+  "95cb2c698ca43282cc9e82a1fa46649bd8cc6e16c4eec6af7cc21c7fd47e1c80": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        insert into users (id, name, created_at, updated_at)\n        values ($1, $2, current_timestamp, current_timestamp)\n        "
+  }
+}
