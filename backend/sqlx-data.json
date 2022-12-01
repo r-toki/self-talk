@@ -26,6 +26,40 @@
     },
     "query": "\n        select id, name from users\n        where id = $1\n        "
   },
+  "82f17db4f442d712c7a38a1e91d00007f6095e48119234cde055bce92856a71b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Int2",
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        insert into self_talks (body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at, user_id)\n        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, current_timestamp, $10)\n        "
+  },
+  "83693b37eeaaae74add7919345f8da47bfff89f6a0fa0d5e2393d4c62f652fd8": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4"
+        ]
+      }
+    },
+    "query": "\n        delete from self_talks\n        where user_id = $1\n        and id = $2\n        "
+  },
   "95cb2c698ca43282cc9e82a1fa46649bd8cc6e16c4eec6af7cc21c7fd47e1c80": {
     "describe": {
       "columns": [],
@@ -38,5 +72,85 @@
       }
     },
     "query": "\n        insert into users (id, name, created_at, updated_at)\n        values ($1, $2, current_timestamp, current_timestamp)\n        "
+  },
+  "fd14fb5d2481def41c67a6744fbfae50d885d6035f52f286c24648e9e896f0bb": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "body",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "joy",
+          "ordinal": 2,
+          "type_info": "Int2"
+        },
+        {
+          "name": "trust",
+          "ordinal": 3,
+          "type_info": "Int2"
+        },
+        {
+          "name": "fear",
+          "ordinal": 4,
+          "type_info": "Int2"
+        },
+        {
+          "name": "surprise",
+          "ordinal": 5,
+          "type_info": "Int2"
+        },
+        {
+          "name": "sadness",
+          "ordinal": 6,
+          "type_info": "Int2"
+        },
+        {
+          "name": "disgust",
+          "ordinal": 7,
+          "type_info": "Int2"
+        },
+        {
+          "name": "anger",
+          "ordinal": 8,
+          "type_info": "Int2"
+        },
+        {
+          "name": "anticipation",
+          "ordinal": 9,
+          "type_info": "Int2"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 10,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "\n        select id, body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at\n        from self_talks\n        where user_id = $1\n        order by created_at desc\n        "
   }
 }

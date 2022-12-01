@@ -1,9 +1,15 @@
 import { Button, HStack, Stack, Textarea } from '@chakra-ui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FormEventHandler, useState } from 'react';
 
+import { useAppToast } from '@/hooks/useAppToast';
 import { useTextInput } from '@/hooks/useTextInput';
+import { createSelfTalk as createSelfTalkFn } from '@/lib/backend';
 
-export const Post = () => {
+export const SelfTalksNew = () => {
+  const client = useQueryClient();
+  const toast = useAppToast();
+
   const bodyInput = useTextInput();
   const joyInput = useEmotionInput();
   const trustInput = useEmotionInput();
@@ -14,8 +20,39 @@ export const Post = () => {
   const angerInput = useEmotionInput();
   const anticipationInput = useEmotionInput();
 
-  const onSubmit: FormEventHandler = (e) => {
+  const createSelfTalk = useMutation({
+    mutationFn: createSelfTalkFn,
+    onSuccess: () => {
+      client.invalidateQueries(['self_talks']);
+      toast({ status: 'success', title: 'Created.' });
+    },
+    onError: () => toast({ status: 'error', title: 'Failed.' }),
+  });
+
+  const onSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
+
+    await createSelfTalk.mutate({
+      body: bodyInput.value,
+      joy: joyInput.value,
+      trust: trustInput.value,
+      fear: fearInput.value,
+      surprise: surpriseInput.value,
+      sadness: sadnessInput.value,
+      disgust: disgustInput.value,
+      anger: angerInput.value,
+      anticipation: anticipationInput.value,
+    });
+
+    bodyInput.set('');
+    joyInput.set(0);
+    trustInput.set(0);
+    fearInput.set(0);
+    surpriseInput.set(0);
+    sadnessInput.set(0);
+    disgustInput.set(0);
+    angerInput.set(0);
+    anticipationInput.set(0);
   };
 
   return (

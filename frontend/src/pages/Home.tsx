@@ -1,11 +1,12 @@
 import { Box, HStack, Link, Stack } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useLocalStorage } from 'react-use';
 
 import { AppLayout } from '@/components/AppLayout';
-import { Post } from '@/components/Post';
+import { SelfTalksList } from '@/components/SelfTalksList';
+import { SelfTalksNew } from '@/components/SelfTalksNew';
 
 export const Home = () => {
-  const [tab, setTab] = useState<'post' | 'list' | 'graph'>('post');
+  const [tab, setTab] = useLocalStorage<'post' | 'list' | 'graph'>('home_tab', 'post');
 
   return (
     <AppLayout>
@@ -22,7 +23,10 @@ export const Home = () => {
           </Link>
         </HStack>
 
-        <Box px="2">{tab == 'post' && <Post />}</Box>
+        <Box px="2">
+          {tab == 'post' && <SelfTalksNew />}
+          {tab == 'list' && <SelfTalksList />}
+        </Box>
       </Stack>
     </AppLayout>
   );

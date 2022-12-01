@@ -4,6 +4,7 @@ use sqlx::{query, query_as, FromRow, PgPool};
 use validator::Validate;
 
 #[derive(Serialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct Me {
     id: String,
     name: String,
@@ -24,6 +25,7 @@ pub async fn get_me(pool: &PgPool, id: String) -> Result<Me, Error> {
 }
 
 #[derive(Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct CreateMe {
     #[validate(length(min = 3))]
     name: String,
