@@ -6,6 +6,8 @@ import { useAppToast } from '@/hooks/useAppToast';
 import { useTextInput } from '@/hooks/useTextInput';
 import { createSelfTalk as createSelfTalkFn } from '@/lib/backend';
 
+const OPACITY = 0.5;
+
 export const SelfTalksNew = () => {
   const client = useQueryClient();
   const toast = useAppToast();
@@ -61,31 +63,79 @@ export const SelfTalksNew = () => {
         <Textarea rows={5} required {...bodyInput.bind} />
 
         <HStack>
-          <Button colorScheme="joy" size="xs" flex="1" {...joyInput.bind}>
+          <Button
+            colorScheme="joy"
+            size="xs"
+            flex="1"
+            opacity={joyInput.value ? 1 : OPACITY}
+            {...joyInput.bind}
+          >
             joy {joyInput.value || ''}
           </Button>
-          <Button colorScheme="trust" size="xs" flex="1" {...trustInput.bind}>
+          <Button
+            colorScheme="trust"
+            size="xs"
+            flex="1"
+            opacity={trustInput.value ? 1 : OPACITY}
+            {...trustInput.bind}
+          >
             trust {trustInput.value || ''}
           </Button>
-          <Button colorScheme="fear" size="xs" flex="1" {...fearInput.bind}>
+          <Button
+            colorScheme="fear"
+            size="xs"
+            flex="1"
+            opacity={fearInput.value ? 1 : OPACITY}
+            {...fearInput.bind}
+          >
             fear {fearInput.value || ''}
           </Button>
-          <Button colorScheme="surprise" size="xs" flex="1" {...surpriseInput.bind}>
+          <Button
+            colorScheme="surprise"
+            size="xs"
+            flex="1"
+            opacity={surpriseInput.value ? 1 : OPACITY}
+            {...surpriseInput.bind}
+          >
             surprise {surpriseInput.value || ''}
           </Button>
         </HStack>
 
         <HStack>
-          <Button colorScheme="sadness" size="xs" flex="1" {...sadnessInput.bind}>
+          <Button
+            colorScheme="sadness"
+            size="xs"
+            flex="1"
+            opacity={sadnessInput.value ? 1 : OPACITY}
+            {...sadnessInput.bind}
+          >
             sadness {sadnessInput.value || ''}
           </Button>
-          <Button colorScheme="disgust" size="xs" flex="1" {...disgustInput.bind}>
+          <Button
+            colorScheme="disgust"
+            size="xs"
+            flex="1"
+            opacity={disgustInput.value ? 1 : OPACITY}
+            {...disgustInput.bind}
+          >
             disgust {disgustInput.value || ''}
           </Button>
-          <Button colorScheme="anger" size="xs" flex="1" {...angerInput.bind}>
+          <Button
+            colorScheme="anger"
+            size="xs"
+            flex="1"
+            opacity={angerInput.value ? 1 : OPACITY}
+            {...angerInput.bind}
+          >
             anger {angerInput.value || ''}
           </Button>
-          <Button colorScheme="anticipation" size="xs" flex="1" {...anticipationInput.bind}>
+          <Button
+            colorScheme="anticipation"
+            size="xs"
+            flex="1"
+            opacity={anticipationInput.value ? 1 : OPACITY}
+            {...anticipationInput.bind}
+          >
             anticip. {anticipationInput.value || ''}
           </Button>
         </HStack>

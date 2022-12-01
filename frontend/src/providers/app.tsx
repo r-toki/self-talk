@@ -10,42 +10,34 @@ import { MeProvider } from './me';
 const extendedTheme = extendTheme({
   colors: {
     joy: {
-      400: theme.colors.yellow[300],
       500: theme.colors.yellow[400],
       600: theme.colors.yellow[500],
     },
     trust: {
-      400: theme.colors.green[200],
-      500: theme.colors.green[300],
-      600: theme.colors.green[400],
+      500: theme.colors.green[400],
+      600: theme.colors.green[500],
     },
     fear: {
-      400: theme.colors.green[500],
       500: theme.colors.green[600],
       600: theme.colors.green[700],
     },
     surprise: {
-      400: theme.colors.blue[200],
-      500: theme.colors.blue[300],
-      600: theme.colors.blue[400],
+      500: theme.colors.blue[400],
+      600: theme.colors.blue[500],
     },
     sadness: {
-      400: theme.colors.blue[500],
       500: theme.colors.blue[600],
       600: theme.colors.blue[700],
     },
     disgust: {
-      400: theme.colors.purple[400],
       500: theme.colors.purple[500],
       600: theme.colors.purple[600],
     },
     anger: {
-      300: theme.colors.red[300],
       500: theme.colors.red[400],
       600: theme.colors.red[500],
     },
     anticipation: {
-      400: theme.colors.orange[300],
       500: theme.colors.orange[400],
       600: theme.colors.orange[500],
     },
