@@ -9,6 +9,7 @@ use sqlx::PgPool;
 
 pub fn init(cfg: &mut ServiceConfig) {
     cfg.service(index);
+    cfg.service(graph_index);
     cfg.service(create);
     cfg.service(delete);
 }
@@ -20,6 +21,17 @@ async fn index(
     query: Query<GetSelfTalks>,
 ) -> Result<Json<Vec<SelfTalk>>, Error> {
     get_self_talks(&**pool, at.into_inner().uid, query.into_inner())
+        .await
+        .map(Json)
+}
+
+#[get("/self_talks/graph")]
+async fn graph_index(
+    pool: Data<PgPool>,
+    at: AccessTokenDecoded,
+    query: Query<GetSelfTalksGraph>,
+) -> Result<Json<Vec<SelfTalk>>, Error> {
+    get_self_talks_graph(&**pool, at.into_inner().uid, query.into_inner())
         .await
         .map(Json)
 }

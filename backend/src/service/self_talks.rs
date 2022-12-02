@@ -4,12 +4,6 @@ use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, FromRow, PgPool};
 use validator::Validate;
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GetSelfTalks {
-    after: Option<DateTime<Utc>>,
-}
-
 #[derive(Serialize, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct SelfTalk {
@@ -24,6 +18,12 @@ pub struct SelfTalk {
     anger: i16,
     anticipation: i16,
     created_at: DateTime<Utc>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSelfTalks {
+    before: Option<DateTime<Utc>>,
 }
 
 pub async fn get_self_talks(
@@ -42,7 +42,38 @@ pub async fn get_self_talks(
         limit 10
         ",
         user_id,
-        query.after
+        query.before
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(Into::into)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSelfTalksGraph {
+    before: Option<DateTime<Utc>>,
+    after: Option<DateTime<Utc>>,
+}
+
+pub async fn get_self_talks_graph(
+    pool: &PgPool,
+    user_id: String,
+    query: GetSelfTalksGraph,
+) -> Result<Vec<SelfTalk>, Error> {
+    query_as!(
+        SelfTalk,
+        "
+        select id, body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at
+        from self_talks
+        where user_id = $1
+        and created_at < $2
+        and created_at > $3
+        order by created_at desc
+        ",
+        user_id,
+        query.before,
+        query.after,
     )
     .fetch_all(pool)
     .await

@@ -73,6 +73,88 @@
     },
     "query": "\n        insert into users (id, name, created_at, updated_at)\n        values ($1, $2, current_timestamp, current_timestamp)\n        "
   },
+  "a4ce9a6710d0a298270d986c2724b2d0df523948e823f66eb2b49dc3d6769f78": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "body",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "joy",
+          "ordinal": 2,
+          "type_info": "Int2"
+        },
+        {
+          "name": "trust",
+          "ordinal": 3,
+          "type_info": "Int2"
+        },
+        {
+          "name": "fear",
+          "ordinal": 4,
+          "type_info": "Int2"
+        },
+        {
+          "name": "surprise",
+          "ordinal": 5,
+          "type_info": "Int2"
+        },
+        {
+          "name": "sadness",
+          "ordinal": 6,
+          "type_info": "Int2"
+        },
+        {
+          "name": "disgust",
+          "ordinal": 7,
+          "type_info": "Int2"
+        },
+        {
+          "name": "anger",
+          "ordinal": 8,
+          "type_info": "Int2"
+        },
+        {
+          "name": "anticipation",
+          "ordinal": 9,
+          "type_info": "Int2"
+        },
+        {
+          "name": "created_at",
+          "ordinal": 10,
+          "type_info": "Timestamptz"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Timestamptz",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "\n        select id, body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at\n        from self_talks\n        where user_id = $1\n        and created_at < $2\n        and created_at > $3\n        order by created_at desc\n        "
+  },
   "f1124e8ec1e991f44e55b637c6d9d4a70c5b7342032ab93493edf5011ba9f5e3": {
     "describe": {
       "columns": [

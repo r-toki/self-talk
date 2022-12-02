@@ -40,7 +40,7 @@ export const SelfTalksList = () => {
 
   const selfTalks = useInfiniteQuery({
     queryKey: ['self_talks'],
-    queryFn: ({ pageParam = new Date().toISOString() }) => getSelfTalks({ after: pageParam }),
+    queryFn: ({ pageParam = new Date().toISOString() }) => getSelfTalks({ before: pageParam }),
     getNextPageParam: (lastPage) => lastPage.at(-1)?.createdAt,
   });
 

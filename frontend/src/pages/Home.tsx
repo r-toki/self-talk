@@ -2,6 +2,7 @@ import { Box, HStack, Link, Stack } from '@chakra-ui/react';
 import { useLocalStorage } from 'react-use';
 
 import { AppLayout } from '@/components/AppLayout';
+import { SelfTalksGraph } from '@/components/SelfTalksGraph';
 import { SelfTalksList } from '@/components/SelfTalksList';
 
 export const Home = () => {
@@ -19,7 +20,10 @@ export const Home = () => {
           </Link>
         </HStack>
 
-        <Box px="2">{tab == 'list' && <SelfTalksList />}</Box>
+        <Box px="2">
+          {tab == 'list' && <SelfTalksList />}
+          {tab == 'graph' && <SelfTalksGraph />}
+        </Box>
       </Stack>
     </AppLayout>
   );

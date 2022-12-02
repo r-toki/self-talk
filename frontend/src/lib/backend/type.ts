@@ -19,7 +19,11 @@ export type SelfTalk = {
   anticipation: number;
   createdAt: string;
 };
-export type GetSelfTalk = {
+export type GetSelfTalks = {
+  before: string;
+};
+export type GetSelfTalksGraph = {
+  before: string;
   after: string;
 };
 export type CreateSelfTalk = {
