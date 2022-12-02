@@ -1,8 +1,10 @@
 import {
   Box,
+  Button,
   Divider,
   Flex,
   HStack,
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -12,7 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { BiPlus } from 'react-icons/bi';
 import { GoKebabVertical } from 'react-icons/go';
+import { useNavigate } from 'react-router-dom';
 
 import { useAppToast } from '@/hooks/useAppToast';
 import { deleteSelfTalk as deleteSelfTalkFn, getSelfTalks, SelfTalk } from '@/lib/backend';
@@ -29,6 +33,8 @@ const EMOTION_KEYS = [
 ];
 
 export const SelfTalksList = () => {
+  const navigate = useNavigate();
+
   const selfTalks = useQuery({
     queryKey: ['self_talks'],
     queryFn: getSelfTalks,
@@ -42,6 +48,12 @@ export const SelfTalksList = () => {
           <Divider />
         </Stack>
       ))}
+
+      <Flex justify="end" position="fixed" bottom="10%" w={{ base: '327px', sm: '400px' }}>
+        <Button h="16" w="16" rounded="full" onClick={() => navigate('/self_talks/new')}>
+          <Icon as={BiPlus} fontSize="4xl" />
+        </Button>
+      </Flex>
     </Stack>
   );
 };
@@ -66,40 +78,37 @@ const SelfTalkListItem = ({ selfTalk }: { selfTalk: SelfTalk }) => {
   const emotions = Object.entries(selfTalk).filter(([k, v]) => EMOTION_KEYS.includes(k) && !!v);
 
   return (
-    <Stack spacing="1" pb="1">
+    <Flex justifyContent="space-between">
       <Box>
-        <Flex justifyContent="space-between" alignItems="end">
-          <Box fontSize="sm">{format(new Date(selfTalk.createdAt), 'MM/dd HH:mm')}</Box>
-          <Box>
-            <Menu placement="bottom-end">
-              <MenuButton as={IconButton} icon={<GoKebabVertical />} size="xs" variant="ghost" />
-              <MenuList>
-                <MenuItem onClick={onDeleteSelfTalk}>Delete</MenuItem>
-              </MenuList>
-            </Menu>
-          </Box>
-        </Flex>
-
-        <Box whiteSpace="pre">{selfTalk.body}</Box>
+        <Box fontSize="sm">{format(new Date(selfTalk.createdAt), 'MM/dd HH:mm')}</Box>
+        <Box whiteSpace="pre-wrap">{selfTalk.body}</Box>
+        {emotions.length > 0 && (
+          <HStack spacing="1" mt="1">
+            {emotions.map(([k, v]) => (
+              <Box
+                key={k}
+                px="1"
+                bg={`${k}.500`}
+                color="white"
+                rounded="md"
+                fontSize="xs"
+                fontWeight="bold"
+              >
+                {k} {v}
+              </Box>
+            ))}
+          </HStack>
+        )}
       </Box>
 
-      {emotions.length && (
-        <HStack spacing="1">
-          {emotions.map(([k, v]) => (
-            <Box
-              key={k}
-              px="1"
-              bg={`${k}.500`}
-              color="white"
-              rounded="md"
-              fontSize="xs"
-              fontWeight="bold"
-            >
-              {k} {v}
-            </Box>
-          ))}
-        </HStack>
-      )}
-    </Stack>
+      <Box>
+        <Menu placement="bottom-end">
+          <MenuButton as={IconButton} icon={<GoKebabVertical />} size="xs" variant="ghost" />
+          <MenuList>
+            <MenuItem onClick={onDeleteSelfTalk}>Delete</MenuItem>
+          </MenuList>
+        </Menu>
+      </Box>
+    </Flex>
   );
 };

@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   Flex,
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -13,6 +14,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAuth, signOut as signOutFn } from 'firebase/auth';
 import { ReactNode } from 'react';
+import { FaArrowLeft } from 'react-icons/fa';
 import { GoThreeBars } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,9 +23,11 @@ import { useMe } from '@/providers/me';
 
 export const AppLayout = ({
   title = 'Self Talk',
+  back,
   children,
 }: {
   title?: string;
+  back?: string;
   children: ReactNode;
 }) => {
   const client = useQueryClient();
@@ -43,7 +47,22 @@ export const AppLayout = ({
   return (
     <Container maxW="md" py="2">
       <Stack spacing="4">
-        <Flex justifyContent="end" alignItems="center" position="relative" h="40px">
+        <Flex justify="end" align="center" position="relative" h="40px">
+          {back && (
+            <Flex
+              justify="center"
+              align="center"
+              position="absolute"
+              left="0"
+              w="10"
+              h="10"
+              cursor="pointer"
+              onClick={() => navigate(back)}
+            >
+              <Icon as={FaArrowLeft} />
+            </Flex>
+          )}
+
           <Box
             position="absolute"
             left="50%"
@@ -58,7 +77,7 @@ export const AppLayout = ({
             <Menu placement="bottom-end">
               <MenuButton as={IconButton} icon={<GoThreeBars />} />
               <MenuList>
-                <MenuItem onClick={() => navigate('/home')}>{me!.name}</MenuItem>
+                <MenuItem>{me!.name}</MenuItem>
                 <MenuDivider />
                 <MenuItem onClick={() => signOut.mutate()} disabled={signOut.isLoading}>
                   Sign Out
