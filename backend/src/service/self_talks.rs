@@ -4,6 +4,12 @@ use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as, FromRow, PgPool};
 use validator::Validate;
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GetSelfTalks {
+    after: Option<DateTime<Utc>>,
+}
+
 #[derive(Serialize, FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct SelfTalk {
@@ -20,16 +26,23 @@ pub struct SelfTalk {
     created_at: DateTime<Utc>,
 }
 
-pub async fn get_self_talks(pool: &PgPool, user_id: String) -> Result<Vec<SelfTalk>, Error> {
+pub async fn get_self_talks(
+    pool: &PgPool,
+    user_id: String,
+    query: GetSelfTalks,
+) -> Result<Vec<SelfTalk>, Error> {
     query_as!(
         SelfTalk,
         "
         select id, body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at
         from self_talks
         where user_id = $1
+        and created_at < $2
         order by created_at desc
+        limit 10
         ",
-        user_id
+        user_id,
+        query.after
     )
     .fetch_all(pool)
     .await

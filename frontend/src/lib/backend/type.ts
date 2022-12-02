@@ -19,6 +19,9 @@ export type SelfTalk = {
   anticipation: number;
   createdAt: string;
 };
+export type GetSelfTalk = {
+  after: string;
+};
 export type CreateSelfTalk = {
   body: string;
   joy: number;

@@ -1,18 +1,21 @@
 import {
   Box,
   Button,
+  Center,
   Divider,
   Flex,
   HStack,
   Icon,
   IconButton,
+  Link,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
+  Spinner,
   Stack,
 } from '@chakra-ui/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { BiPlus } from 'react-icons/bi';
 import { GoKebabVertical } from 'react-icons/go';
@@ -35,19 +38,40 @@ const EMOTION_KEYS = [
 export const SelfTalksList = () => {
   const navigate = useNavigate();
 
-  const selfTalks = useQuery({
+  const selfTalks = useInfiniteQuery({
     queryKey: ['self_talks'],
-    queryFn: getSelfTalks,
+    queryFn: ({ pageParam = new Date().toISOString() }) => getSelfTalks({ after: pageParam }),
+    getNextPageParam: (lastPage) => lastPage.at(-1)?.createdAt,
   });
 
   return (
     <Stack>
-      {selfTalks.data?.map((selfTalk) => (
-        <Stack key={selfTalk.id}>
-          <SelfTalkListItem selfTalk={selfTalk} />
-          <Divider />
-        </Stack>
-      ))}
+      {selfTalks.status == 'loading' && (
+        <Center>
+          <Spinner />
+        </Center>
+      )}
+
+      {selfTalks.data?.pages
+        .flatMap((group) => group)
+        .map((selfTalk) => (
+          <Stack key={selfTalk.id}>
+            <SelfTalkListItem selfTalk={selfTalk} />
+            <Divider />
+          </Stack>
+        ))}
+
+      {selfTalks.isFetchingNextPage && (
+        <Center>
+          <Spinner />
+        </Center>
+      )}
+
+      {selfTalks.hasNextPage && (
+        <Link alignSelf="center" pb="2" onClick={() => selfTalks.fetchNextPage()}>
+          more
+        </Link>
+      )}
 
       <Flex justify="end" position="fixed" bottom="10%" w={{ base: '327px', sm: '400px' }}>
         <Button h="16" w="16" rounded="full" onClick={() => navigate('/self_talks/new')}>

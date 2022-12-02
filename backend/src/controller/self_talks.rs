@@ -3,7 +3,7 @@ use crate::lib::Error;
 use crate::service::self_talks::*;
 use actix_web::{
     delete, get, post,
-    web::{Data, Json, Path, ServiceConfig},
+    web::{Data, Json, Path, Query, ServiceConfig},
 };
 use sqlx::PgPool;
 
@@ -14,8 +14,14 @@ pub fn init(cfg: &mut ServiceConfig) {
 }
 
 #[get("/self_talks")]
-async fn index(pool: Data<PgPool>, at: AccessTokenDecoded) -> Result<Json<Vec<SelfTalk>>, Error> {
-    get_self_talks(&**pool, at.into_inner().uid).await.map(Json)
+async fn index(
+    pool: Data<PgPool>,
+    at: AccessTokenDecoded,
+    query: Query<GetSelfTalks>,
+) -> Result<Json<Vec<SelfTalk>>, Error> {
+    get_self_talks(&**pool, at.into_inner().uid, query.into_inner())
+        .await
+        .map(Json)
 }
 
 #[post("/self_talks")]
