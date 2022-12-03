@@ -1,41 +1,57 @@
-import { Box, Flex, HStack, Input, Stack } from '@chakra-ui/react';
-import { useQuery } from '@tanstack/react-query';
 import {
-  eachDayOfInterval,
-  format,
-  getDate,
-  isAfter,
-  isBefore,
-  isSameDay,
-  startOfToday,
-  subDays,
-  subHours,
-} from 'date-fns';
+  Box,
+  HStack,
+  Input,
+  Stack,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+} from '@chakra-ui/react';
+import { useQuery } from '@tanstack/react-query';
+import { eachDayOfInterval, endOfDay, format, isAfter, startOfDay, subDays } from 'date-fns';
+import { get, groupBy, sortBy } from 'lodash';
 import { useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
-import { getSelfTalksGraph as getSelfTalksGraphFn } from '@/lib/backend';
+import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backend';
+import { EMOTION_KEYS } from '@/lib/constants';
 
 export const SelfTalksGraph = () => {
-  const [beforeOn, setBeforeOn] = useLocalStorage(
-    'graph_before_on',
-    format(new Date(), 'yyyy-MM-dd'),
-  );
-  const [afterOn, setAfterOn] = useLocalStorage('graph_after_on', format(new Date(), 'yyyy-MM-dd'));
-  const beforeAt = subHours(new Date(beforeOn!), 9);
-  const afterAt = subHours(new Date(afterOn!), 9);
+  const [beforeOn, setBeforeOn] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [afterOn, setAfterOn] = useState(format(subDays(new Date(), 1), 'yyyy-MM-dd'));
+  const beforeAt = endOfDay(new Date(beforeOn!));
+  const afterAt = startOfDay(new Date(afterOn!));
   const before = beforeAt.toISOString();
   const after = afterAt.toISOString();
-  const dateRange = eachDayOfInterval({ start: afterAt, end: beforeAt });
+  const dateRange = eachDayOfInterval({ start: new Date(afterOn), end: new Date(beforeOn) }).map(
+    (v) => format(new Date(v), 'dd'),
+  );
 
   const [beforeHour, setBeforeHour] = useLocalStorage('graph_before_hour', 24);
   const [afterHour, setAfterHour] = useLocalStorage('graph_after_hour', 6);
-  const hourRange = [...Array(beforeHour! - afterHour!).keys()].map((i) => i + afterHour!);
+  const hourRange = [...Array(beforeHour! - afterHour!).keys()]
+    .map((v) => v + afterHour!)
+    .map((v) => v.toString().padStart(2, '0'));
 
-  // const selfTalks = useQuery({
-  //   queryKey: ['self_talks', { before, after }],
-  //   queryFn: () => getSelfTalksGraphFn({ before, after }),
-  // });
+  const selfTalks = useQuery({
+    queryKey: ['self_talks', { before, after }],
+    queryFn: () => getSelfTalksGraphFn({ before, after }),
+  });
+
+  const groupedByDate = groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'dd'));
+  const groupedByHour = Object.fromEntries(
+    Object.entries(groupedByDate)
+      .map(([k, v]) => [k, groupBy(v, (vv) => format(new Date(vv.createdAt), 'HH'))])
+      .map(([k, v]) => [
+        k,
+        Object.fromEntries(Object.entries(v).map(([kk, vv]) => [kk, sortBy(vv, 'createdAt')])),
+      ]),
+  ) as Record<string, Record<string, SelfTalk[]>>;
 
   return (
     <Stack spacing="4">
@@ -87,34 +103,59 @@ export const SelfTalksGraph = () => {
         </HStack>
       </Stack>
 
-      <Stack direction="row">
-        <Box>
-          {hourRange.map((hour) => (
-            <Box
-              key={hour}
-              h="10"
-              color="gray"
-              fontWeight="semibold"
-              fontSize="xs"
-              fontFamily="mono"
-            >
-              {hour.toString().padStart(2, '0')}
-            </Box>
-          ))}
-        </Box>
+      <TableContainer>
+        <Table>
+          <Thead>
+            <Tr>
+              <Th></Th>
+              {dateRange.map((v) => (
+                <Th key={v} color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
+                  {v}
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
 
-        {dateRange.map((date) => (
-          <Box key={date.toISOString()} flex="1">
-            {hourRange.map((hour) => (
-              <Box key={hour} h="10"></Box>
+          <Tbody>
+            {hourRange.map((h) => (
+              <Tr key={h}>
+                <>
+                  <Td color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
+                    {h}
+                  </Td>
+                  {dateRange.map((d) => {
+                    const data = get(get(groupedByHour, d), h) ?? [];
+                    return (
+                      <Td key={d}>
+                        <Stack>
+                          {data.map((v) => {
+                            const emotions = Object.entries(v).filter(
+                              ([k, v]) => EMOTION_KEYS.includes(k) && !!v,
+                            );
+                            return (
+                              <Tooltip
+                                key={v.id}
+                                label={`${v.body}\n${format(new Date(v.createdAt), 'MM/dd HH:mm')}`}
+                                whiteSpace="pre-wrap"
+                              >
+                                <HStack spacing="0.5">
+                                  {emotions.map(([k]) => (
+                                    <Box key={k} w="3" h="3" rounded="full" bg={`${k}.500`} />
+                                  ))}
+                                </HStack>
+                              </Tooltip>
+                            );
+                          })}
+                        </Stack>
+                      </Td>
+                    );
+                  })}
+                </>
+              </Tr>
             ))}
-
-            <Box color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
-              {format(date, 'MM/dd')}
-            </Box>
-          </Box>
-        ))}
-      </Stack>
+          </Tbody>
+        </Table>
+      </TableContainer>
     </Stack>
   );
 };

@@ -23,17 +23,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAppToast } from '@/hooks/useAppToast';
 import { deleteSelfTalk as deleteSelfTalkFn, getSelfTalks, SelfTalk } from '@/lib/backend';
-
-const EMOTION_KEYS = [
-  'joy',
-  'trust',
-  'fear',
-  'surprise',
-  'sadness',
-  'disgust',
-  'anger',
-  'anticipation',
-];
+import { EMOTION_KEYS } from '@/lib/constants';
 
 export const SelfTalksList = () => {
   const navigate = useNavigate();
