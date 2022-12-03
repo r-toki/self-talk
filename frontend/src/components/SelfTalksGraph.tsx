@@ -2,6 +2,10 @@ import {
   Box,
   HStack,
   Input,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   Stack,
   Table,
   TableContainer,
@@ -9,49 +13,64 @@ import {
   Td,
   Th,
   Thead,
-  Tooltip,
   Tr,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { eachDayOfInterval, endOfDay, format, isAfter, startOfDay, subDays } from 'date-fns';
 import { get, groupBy, sortBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocalStorage } from 'react-use';
 
+import { SelfTalkItem } from '@/components/SelfTalkItem';
 import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backend';
 import { EMOTION_KEYS } from '@/lib/constants';
 
 export const SelfTalksGraph = () => {
   const [beforeOn, setBeforeOn] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [afterOn, setAfterOn] = useState(format(subDays(new Date(), 1), 'yyyy-MM-dd'));
-  const beforeAt = endOfDay(new Date(beforeOn!));
-  const afterAt = startOfDay(new Date(afterOn!));
-  const before = beforeAt.toISOString();
-  const after = afterAt.toISOString();
-  const dateRange = eachDayOfInterval({ start: new Date(afterOn), end: new Date(beforeOn) }).map(
-    (v) => format(new Date(v), 'dd'),
+  const beforeAt = useMemo(() => endOfDay(new Date(beforeOn!)), [beforeOn]);
+  const afterAt = useMemo(() => startOfDay(new Date(afterOn!)), [afterOn]);
+  const before = useMemo(() => beforeAt.toISOString(), [beforeAt]);
+  const after = useMemo(() => afterAt.toISOString(), [afterAt]);
+  const dateRange = useMemo(
+    () =>
+      eachDayOfInterval({ start: new Date(afterOn), end: new Date(beforeOn) }).map((v) =>
+        format(new Date(v), 'dd'),
+      ),
+    [afterOn, beforeOn],
   );
 
   const [beforeHour, setBeforeHour] = useLocalStorage('graph_before_hour', 24);
   const [afterHour, setAfterHour] = useLocalStorage('graph_after_hour', 6);
-  const hourRange = [...Array(beforeHour! - afterHour!).keys()]
-    .map((v) => v + afterHour!)
-    .map((v) => v.toString().padStart(2, '0'));
+  const hourRange = useMemo(
+    () =>
+      [...Array(beforeHour! - afterHour!).keys()]
+        .map((v) => v + afterHour!)
+        .map((v) => v.toString().padStart(2, '0')),
+    [beforeHour, afterHour],
+  );
 
   const selfTalks = useQuery({
     queryKey: ['self_talks', { before, after }],
     queryFn: () => getSelfTalksGraphFn({ before, after }),
   });
 
-  const groupedByDate = groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'dd'));
-  const groupedByHour = Object.fromEntries(
-    Object.entries(groupedByDate)
-      .map(([k, v]) => [k, groupBy(v, (vv) => format(new Date(vv.createdAt), 'HH'))])
-      .map(([k, v]) => [
-        k,
-        Object.fromEntries(Object.entries(v).map(([kk, vv]) => [kk, sortBy(vv, 'createdAt')])),
-      ]),
-  ) as Record<string, Record<string, SelfTalk[]>>;
+  const groupedByDate = useMemo(
+    () => groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'dd')),
+    [selfTalks.data],
+  );
+  const groupedByHour = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(groupedByDate)
+          .map(([k, v]) => [k, groupBy(v, (vv) => format(new Date(vv.createdAt), 'HH'))])
+          .map(([k, v]) => [
+            k,
+            Object.fromEntries(Object.entries(v).map(([kk, vv]) => [kk, sortBy(vv, 'createdAt')])),
+          ]),
+      ) as Record<string, Record<string, SelfTalk[]>>,
+    [groupedByDate],
+  );
 
   return (
     <Stack spacing="4">
@@ -133,17 +152,26 @@ export const SelfTalksGraph = () => {
                               ([k, v]) => EMOTION_KEYS.includes(k) && !!v,
                             );
                             return (
-                              <Tooltip
-                                key={v.id}
-                                label={`${v.body}\n${format(new Date(v.createdAt), 'MM/dd HH:mm')}`}
-                                whiteSpace="pre-wrap"
-                              >
-                                <HStack spacing="0.5">
-                                  {emotions.map(([k]) => (
-                                    <Box key={k} w="3" h="3" rounded="full" bg={`${k}.500`} />
-                                  ))}
-                                </HStack>
-                              </Tooltip>
+                              <Box key={v.id}>
+                                <Popover>
+                                  <PopoverTrigger>
+                                    <HStack spacing="0.5" w="max-content">
+                                      {emotions.map(([k]) => (
+                                        <Box key={k} w="3" h="3" rounded="full" bg={`${k}.500`} />
+                                      ))}
+                                    </HStack>
+                                  </PopoverTrigger>
+                                  <PopoverContent
+                                    w="max-content"
+                                    maxW="300px"
+                                    transform="translateX(-5px)!important"
+                                  >
+                                    <PopoverBody>
+                                      <SelfTalkItem selfTalk={v} />
+                                    </PopoverBody>
+                                  </PopoverContent>
+                                </Popover>
+                              </Box>
                             );
                           })}
                         </Stack>
