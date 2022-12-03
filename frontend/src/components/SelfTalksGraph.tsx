@@ -35,7 +35,7 @@ export const SelfTalksGraph = () => {
   const dateRange = useMemo(
     () =>
       eachDayOfInterval({ start: new Date(afterOn), end: new Date(beforeOn) }).map((v) =>
-        format(new Date(v), 'dd'),
+        format(new Date(v), 'MM/dd'),
       ),
     [afterOn, beforeOn],
   );
@@ -56,7 +56,7 @@ export const SelfTalksGraph = () => {
   });
 
   const groupedByDate = useMemo(
-    () => groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'dd')),
+    () => groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'MM/dd')),
     [selfTalks.data],
   );
   const groupedByHour = useMemo(
@@ -74,54 +74,6 @@ export const SelfTalksGraph = () => {
 
   return (
     <Stack spacing="4">
-      <Stack>
-        <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
-          <Box>date</Box>
-          <Input
-            type="date"
-            size="xs"
-            value={afterOn!}
-            onChange={(e) => {
-              const newAfterOn = e.target.value;
-              if (!isAfter(new Date(newAfterOn), new Date(beforeOn!))) setAfterOn(newAfterOn);
-            }}
-          />
-          <Box>~</Box>
-          <Input
-            type="date"
-            size="xs"
-            value={beforeOn!}
-            onChange={(e) => {
-              const newBeforeOn = e.target.value;
-              if (!isAfter(new Date(afterOn!), new Date(newBeforeOn))) setBeforeOn(newBeforeOn);
-            }}
-          />
-        </HStack>
-
-        <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
-          <Box>hour</Box>
-          <Input
-            type="number"
-            size="xs"
-            step="1"
-            min={0}
-            max={beforeHour! - 1}
-            value={afterHour!}
-            onChange={(e) => setAfterHour(Number(e.target.value))}
-          />
-          <Box>~</Box>
-          <Input
-            type="number"
-            size="xs"
-            step="1"
-            min={afterHour! + 1}
-            max={24}
-            value={beforeHour!}
-            onChange={(e) => setBeforeHour(Number(e.target.value))}
-          />
-        </HStack>
-      </Stack>
-
       <TableContainer>
         <Table>
           <Thead>
@@ -156,6 +108,9 @@ export const SelfTalksGraph = () => {
                                 <Popover>
                                   <PopoverTrigger>
                                     <HStack spacing="0.5" w="max-content">
+                                      {emotions.length == 0 && (
+                                        <Box w="3" h="3" rounded="full" bg="gray.200" />
+                                      )}
                                       {emotions.map(([k]) => (
                                         <Box key={k} w="3" h="3" rounded="full" bg={`${k}.500`} />
                                       ))}
@@ -184,6 +139,57 @@ export const SelfTalksGraph = () => {
           </Tbody>
         </Table>
       </TableContainer>
+
+      <Box as="details" px="6" pb="2">
+        <Box as="summary">range</Box>
+        <Stack py="2">
+          <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
+            <Box>date</Box>
+            <Input
+              type="date"
+              size="xs"
+              value={afterOn!}
+              onChange={(e) => {
+                const newAfterOn = e.target.value;
+                if (!isAfter(new Date(newAfterOn), new Date(beforeOn!))) setAfterOn(newAfterOn);
+              }}
+            />
+            <Box>~</Box>
+            <Input
+              type="date"
+              size="xs"
+              value={beforeOn!}
+              onChange={(e) => {
+                const newBeforeOn = e.target.value;
+                if (!isAfter(new Date(afterOn!), new Date(newBeforeOn))) setBeforeOn(newBeforeOn);
+              }}
+            />
+          </HStack>
+
+          <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
+            <Box>hour</Box>
+            <Input
+              type="number"
+              size="xs"
+              step="1"
+              min={0}
+              max={beforeHour! - 1}
+              value={afterHour!}
+              onChange={(e) => setAfterHour(Number(e.target.value))}
+            />
+            <Box>~</Box>
+            <Input
+              type="number"
+              size="xs"
+              step="1"
+              min={afterHour! + 1}
+              max={24}
+              value={beforeHour!}
+              onChange={(e) => setBeforeHour(Number(e.target.value))}
+            />
+          </HStack>
+        </Stack>
+      </Box>
     </Stack>
   );
 };

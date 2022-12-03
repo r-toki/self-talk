@@ -61,11 +61,11 @@ export const SelfTalksList = () => {
         </Link>
       )}
 
-      <Flex justify="end" position="fixed" bottom="10%" w={{ base: '327px', sm: '400px' }}>
+      {/* <Flex justify="end" position="fixed" bottom="10%" w={{ base: '327px', sm: '400px' }}>
         <Button h="16" w="16" rounded="full" onClick={() => navigate('/self_talks/new')}>
           <Icon as={BiPlus} fontSize="4xl" />
         </Button>
-      </Flex>
+      </Flex> */}
     </Stack>
   );
 };

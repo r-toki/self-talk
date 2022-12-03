@@ -1,4 +1,6 @@
-import { Box, HStack, Link, Stack } from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Icon, Link, Stack } from '@chakra-ui/react';
+import { BiPlus } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 import { useLocalStorage } from 'react-use';
 
 import { AppLayout } from '@/components/AppLayout';
@@ -6,6 +8,7 @@ import { SelfTalksGraph } from '@/components/SelfTalksGraph';
 import { SelfTalksList } from '@/components/SelfTalksList';
 
 export const Home = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useLocalStorage<'list' | 'graph'>('home_tab', 'list');
 
   return (
@@ -25,6 +28,12 @@ export const Home = () => {
           {tab == 'graph' && <SelfTalksGraph />}
         </Box>
       </Stack>
+
+      <Flex justify="end" position="fixed" bottom="10%" w={{ base: '343px', sm: '400px' }}>
+        <Button h="16" w="16" mr="2" rounded="full" onClick={() => navigate('/self_talks/new')}>
+          <Icon as={BiPlus} fontSize="4xl" />
+        </Button>
+      </Flex>
     </AppLayout>
   );
 };
