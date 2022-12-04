@@ -26,6 +26,8 @@ export const SelfTalksList = () => {
     getNextPageParam: (lastPage) => lastPage.at(-1)?.createdAt,
   });
 
+  console.log(selfTalks.data?.pages.flatMap((g) => g));
+
   return (
     <Stack>
       {selfTalks.status == 'loading' && (
@@ -42,6 +44,10 @@ export const SelfTalksList = () => {
             <Divider />
           </Stack>
         ))}
+
+      {selfTalks.data?.pages.flatMap((group) => group).length == 0 && (
+        <Box textAlign="center">there are no self talks.</Box>
+      )}
 
       {selfTalks.isFetchingNextPage && (
         <Center py="2">
