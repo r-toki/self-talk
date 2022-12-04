@@ -1,7 +1,9 @@
 import {
   Box,
+  Button,
+  Flex,
   HStack,
-  Input,
+  Icon,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -16,44 +18,90 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { eachDayOfInterval, endOfDay, format, isAfter, startOfDay, subDays } from 'date-fns';
+import {
+  addDays,
+  eachDayOfInterval,
+  endOfDay,
+  format,
+  isAfter,
+  isBefore,
+  startOfDay,
+  subDays,
+} from 'date-fns';
 import { get, groupBy, sortBy } from 'lodash';
 import { useMemo, useState } from 'react';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { useLocalStorage } from 'react-use';
 
 import { SelfTalkItem } from '@/components/SelfTalkItem';
 import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backend';
 import { EMOTION_KEYS } from '@/lib/constants';
 
-export const SelfTalksGraph = () => {
-  const [beforeOn, setBeforeOn] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [afterOn, setAfterOn] = useState(format(subDays(new Date(), 1), 'yyyy-MM-dd'));
-  const beforeAt = useMemo(() => endOfDay(new Date(beforeOn!)), [beforeOn]);
-  const afterAt = useMemo(() => startOfDay(new Date(afterOn!)), [afterOn]);
+export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boolean }) => {
+  const [beforeAt, setBeforeAt] = useState(endOfDay(new Date()));
+  const [afterAt, setAfterAt] = useState(startOfDay(subDays(new Date(), 1)));
   const before = useMemo(() => beforeAt.toISOString(), [beforeAt]);
   const after = useMemo(() => afterAt.toISOString(), [afterAt]);
   const dateRange = useMemo(
     () =>
-      eachDayOfInterval({ start: new Date(afterOn), end: new Date(beforeOn) }).map((v) =>
-        format(new Date(v), 'MM/dd'),
-      ),
-    [afterOn, beforeOn],
+      eachDayOfInterval({ start: afterAt, end: beforeAt }).map((v) => format(new Date(v), 'MM/dd')),
+    [afterAt, beforeAt],
   );
+  const beforeAtFmt = useMemo(() => format(beforeAt, 'MM/dd'), [beforeAt]);
+  const afterAtFmt = useMemo(() => format(afterAt, 'MM/dd'), [afterAt]);
+  const incBeforeAt = () => setBeforeAt((prev) => addDays(prev, 1));
+  const decBeforeAt = () =>
+    setBeforeAt((prev) => {
+      const next = subDays(prev, 1);
+      return isAfter(next, afterAt) ? next : prev;
+    });
+  const incAfterAt = () => {
+    setAfterAt((prev) => {
+      const next = addDays(prev, 1);
+      return isBefore(next, beforeAt) ? next : prev;
+    });
+  };
+  const decAfterAt = () => setAfterAt((prev) => subDays(prev, 1));
 
   const [beforeHour, setBeforeHour] = useState(24);
-  const [afterHour, setAfterHour] = useState(6);
+  const [afterHour, setAfterHour] = useState(9);
   const hourRange = useMemo(
     () =>
-      [...Array(beforeHour! - afterHour!).keys()]
-        .map((v) => v + afterHour!)
+      [...Array(beforeHour - afterHour).keys()]
+        .map((v) => v + afterHour)
         .map((v) => v.toString().padStart(2, '0')),
     [beforeHour, afterHour],
   );
+  const beforeHourFmt = useMemo(() => beforeHour.toString().padStart(2, '0'), [beforeHour]);
+  const afterHourFmt = useMemo(() => afterHour.toString().padStart(2, '0'), [afterHour]);
+  const incBeforeHour = () =>
+    setBeforeHour((prev) => {
+      const next = prev + 1;
+      return next <= 24 ? next : prev;
+    });
+  const decBeforeHour = () => {
+    setBeforeHour((prev) => {
+      const next = prev - 1;
+      return next > afterHour! ? next : prev;
+    });
+  };
+  const incAfterHour = () => {
+    setAfterHour((prev) => {
+      const next = prev + 1;
+      return next < beforeHour! ? next : prev;
+    });
+  };
+  const decAfterHour = () => {
+    setAfterHour((prev) => {
+      const next = prev - 1;
+      return next >= 0 ? next : prev;
+    });
+  };
 
   const selfTalks = useQuery({
     queryKey: ['self_talks', { before, after }],
     queryFn: () => getSelfTalksGraphFn({ before, after }),
   });
-
   const groupedByDate = useMemo(
     () => groupBy(selfTalks.data, (v) => format(new Date(v.createdAt), 'MM/dd')),
     [selfTalks.data],
@@ -73,6 +121,66 @@ export const SelfTalksGraph = () => {
 
   return (
     <Stack spacing="4">
+      {isFilterPanelOpen && (
+        <Flex justify="space-around">
+          <Stack>
+            <Box fontSize="sm" fontFamily="mono">
+              hour
+            </Box>
+            <HStack>
+              <Button size="xs" onClick={decAfterHour}>
+                <Icon as={FaArrowLeft} color="gray" />
+              </Button>
+              <Box color="gray" fontWeight="semibold" fontSize="sm" fontFamily="mono">
+                {afterHourFmt}
+              </Box>
+              <Button size="xs" onClick={incAfterHour}>
+                <Icon as={FaArrowRight} color="gray" />
+              </Button>
+            </HStack>
+            <HStack>
+              <Button size="xs" onClick={decBeforeHour}>
+                <Icon as={FaArrowLeft} color="gray" />
+              </Button>
+              <Box color="gray" fontWeight="semibold" fontSize="sm" fontFamily="mono">
+                {beforeHourFmt}
+              </Box>
+              <Button size="xs" onClick={incBeforeHour}>
+                <Icon as={FaArrowRight} color="gray" />
+              </Button>
+            </HStack>
+          </Stack>
+
+          <Stack>
+            <Box fontSize="sm" fontFamily="mono">
+              date
+            </Box>
+            <HStack>
+              <Button size="xs" onClick={decAfterAt}>
+                <Icon as={FaArrowLeft} color="gray" />
+              </Button>
+              <Box color="gray" fontWeight="semibold" fontSize="sm" fontFamily="mono">
+                {afterAtFmt}
+              </Box>
+              <Button size="xs" onClick={incAfterAt}>
+                <Icon as={FaArrowRight} color="gray" />
+              </Button>
+            </HStack>
+            <HStack>
+              <Button size="xs" onClick={decBeforeAt}>
+                <Icon as={FaArrowLeft} color="gray" />
+              </Button>
+              <Box color="gray" fontWeight="semibold" fontSize="sm" fontFamily="mono">
+                {beforeAtFmt}
+              </Box>
+              <Button size="xs" onClick={incBeforeAt}>
+                <Icon as={FaArrowRight} color="gray" />
+              </Button>
+            </HStack>
+          </Stack>
+        </Flex>
+      )}
+
       <TableContainer>
         <Table>
           <Thead>
@@ -138,57 +246,6 @@ export const SelfTalksGraph = () => {
           </Tbody>
         </Table>
       </TableContainer>
-
-      <Box as="details" px="6" pb="2">
-        <Box as="summary">range</Box>
-        <Stack py="2">
-          <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
-            <Box>date</Box>
-            <Input
-              type="date"
-              size="xs"
-              value={afterOn!}
-              onChange={(e) => {
-                const newAfterOn = e.target.value;
-                if (!isAfter(new Date(newAfterOn), new Date(beforeOn!))) setAfterOn(newAfterOn);
-              }}
-            />
-            <Box>~</Box>
-            <Input
-              type="date"
-              size="xs"
-              value={beforeOn!}
-              onChange={(e) => {
-                const newBeforeOn = e.target.value;
-                if (!isAfter(new Date(afterOn!), new Date(newBeforeOn))) setBeforeOn(newBeforeOn);
-              }}
-            />
-          </HStack>
-
-          <HStack color="gray" fontWeight="semibold" fontSize="xs" fontFamily="mono">
-            <Box>hour</Box>
-            <Input
-              type="number"
-              size="xs"
-              step="1"
-              min={0}
-              max={beforeHour! - 1}
-              value={afterHour!}
-              onChange={(e) => setAfterHour(Number(e.target.value))}
-            />
-            <Box>~</Box>
-            <Input
-              type="number"
-              size="xs"
-              step="1"
-              min={afterHour! + 1}
-              max={24}
-              value={beforeHour!}
-              onChange={(e) => setBeforeHour(Number(e.target.value))}
-            />
-          </HStack>
-        </Stack>
-      </Box>
     </Stack>
   );
 };
