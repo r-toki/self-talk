@@ -108,6 +108,25 @@ pub async fn create_self_talk(
     user_id: String,
     input: CreateSelfTalk,
 ) -> Result<(), Error> {
+    let emotions_count = [
+        input.joy,
+        input.trust,
+        input.fear,
+        input.surprise,
+        input.sadness,
+        input.disgust,
+        input.anger,
+        input.anticipation,
+    ]
+    .into_iter()
+    .filter(|v| *v > 0)
+    .collect::<Vec<i16>>()
+    .len();
+
+    if emotions_count == 0 || emotions_count > 2 {
+        return Err(Error::UnprocessableEntity("emotions must be greater than 1 and less than 2".into()));
+    }
+
     query!(
         "
         insert into self_talks (body, joy, trust, fear, surprise, sadness, disgust, anger, anticipation, created_at, user_id)

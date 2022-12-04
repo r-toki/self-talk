@@ -8,7 +8,7 @@ import { useAppToast } from '@/hooks/useAppToast';
 import { useTextInput } from '@/hooks/useTextInput';
 import { createSelfTalk as createSelfTalkFn } from '@/lib/backend';
 
-const OPACITY = 0.5;
+const OPACITY = 0.4;
 
 export const SelfTalksNew = () => {
   const client = useQueryClient();
@@ -24,6 +24,18 @@ export const SelfTalksNew = () => {
   const disgustInput = useEmotionInput();
   const angerInput = useEmotionInput();
   const anticipationInput = useEmotionInput();
+
+  const emotionsCount = [
+    bodyInput.value,
+    joyInput.value,
+    trustInput.value,
+    fearInput.value,
+    surpriseInput.value,
+    sadnessInput.value,
+    disgustInput.value,
+    angerInput.value,
+    anticipationInput.value,
+  ].filter((v) => v > 0).length;
 
   const createSelfTalk = useMutation({
     mutationFn: createSelfTalkFn,
@@ -73,6 +85,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={joyInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || joyInput.value > 0)}
               {...joyInput.bind}
             >
               joy {joyInput.value || ''}
@@ -82,6 +95,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={trustInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || trustInput.value > 0)}
               {...trustInput.bind}
             >
               trust {trustInput.value || ''}
@@ -91,6 +105,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={fearInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || fearInput.value > 0)}
               {...fearInput.bind}
             >
               fear {fearInput.value || ''}
@@ -100,6 +115,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={surpriseInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || surpriseInput.value > 0)}
               {...surpriseInput.bind}
             >
               surprise {surpriseInput.value || ''}
@@ -112,6 +128,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={sadnessInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || sadnessInput.value > 0)}
               {...sadnessInput.bind}
             >
               sadness {sadnessInput.value || ''}
@@ -121,6 +138,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={disgustInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || disgustInput.value > 0)}
               {...disgustInput.bind}
             >
               disgust {disgustInput.value || ''}
@@ -130,6 +148,7 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={angerInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || angerInput.value > 0)}
               {...angerInput.bind}
             >
               anger {angerInput.value || ''}
@@ -139,13 +158,16 @@ export const SelfTalksNew = () => {
               size="xs"
               flex="1"
               opacity={anticipationInput.value ? 1 : OPACITY}
+              disabled={!(emotionsCount < 2 || anticipationInput.value > 0)}
               {...anticipationInput.bind}
             >
               anticip. {anticipationInput.value || ''}
             </Button>
           </HStack>
 
-          <Button type="submit">Save</Button>
+          <Button type="submit" disabled={!(bodyInput.value.length > 0 && emotionsCount > 0)}>
+            Save
+          </Button>
         </Stack>
       </form>
     </AppLayout>
