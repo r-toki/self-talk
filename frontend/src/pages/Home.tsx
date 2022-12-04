@@ -33,15 +33,17 @@ export const Home = () => {
             graph
           </Link>
 
-          <Button
-            position="absolute"
-            right="1"
-            size="xs"
-            variant="ghost"
-            onClick={filterPanel.onToggle}
-          >
-            <Icon as={BiMenuAltRight} fontSize="lg" />
-          </Button>
+          {tab == 'graph' && (
+            <Button
+              position="absolute"
+              right="1"
+              size="xs"
+              variant="ghost"
+              onClick={filterPanel.onToggle}
+            >
+              <Icon as={BiMenuAltRight} fontSize="lg" />
+            </Button>
+          )}
         </HStack>
 
         <Box px="2">

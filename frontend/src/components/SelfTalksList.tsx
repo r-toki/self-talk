@@ -29,7 +29,7 @@ export const SelfTalksList = () => {
   return (
     <Stack>
       {selfTalks.status == 'loading' && (
-        <Center>
+        <Center py="2">
           <Spinner />
         </Center>
       )}
@@ -44,7 +44,7 @@ export const SelfTalksList = () => {
         ))}
 
       {selfTalks.isFetchingNextPage && (
-        <Center>
+        <Center py="2">
           <Spinner />
         </Center>
       )}

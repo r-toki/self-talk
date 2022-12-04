@@ -31,7 +31,7 @@ import {
 import { get, groupBy, sortBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import { useLocalStorage } from 'react-use';
+import { useEvent, useLocalStorage, useUnmount } from 'react-use';
 
 import { SelfTalkItem } from '@/components/SelfTalkItem';
 import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backend';
@@ -63,8 +63,10 @@ export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boole
   };
   const decAfterAt = () => setAfterAt((prev) => subDays(prev, 1));
 
-  const [beforeHour, setBeforeHour] = useState(24);
-  const [afterHour, setAfterHour] = useState(9);
+  const [storedBeforeHour, setStoredBeforeHour] = useLocalStorage('graph_before_hour', 24);
+  const [storedAfterHour, setStoredAfterHour] = useLocalStorage('graph_after_hour', 9);
+  const [beforeHour, setBeforeHour] = useState(storedBeforeHour!);
+  const [afterHour, setAfterHour] = useState(storedAfterHour!);
   const hourRange = useMemo(
     () =>
       [...Array(beforeHour - afterHour).keys()]
@@ -97,6 +99,14 @@ export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boole
       return next >= 0 ? next : prev;
     });
   };
+  useUnmount(() => {
+    setStoredBeforeHour(beforeHour);
+    setStoredAfterHour(afterHour);
+  });
+  useEvent('beforeunload', () => {
+    setStoredBeforeHour(beforeHour);
+    setStoredAfterHour(afterHour);
+  });
 
   const selfTalks = useQuery({
     queryKey: ['self_talks', { before, after }],
