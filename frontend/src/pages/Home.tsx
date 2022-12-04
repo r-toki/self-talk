@@ -29,7 +29,13 @@ export const Home = () => {
         </Box>
       </Stack>
 
-      <Flex justify="end" position="fixed" bottom="10%" w={{ base: '343px', sm: '400px' }}>
+      <Flex
+        justify="end"
+        position="fixed"
+        bottom="10%"
+        w={{ base: 'full', sm: 'md' }}
+        pr={{ base: '8', sm: '6' }}
+      >
         <Button h="16" w="16" mr="2" rounded="full" onClick={() => navigate('/self_talks/new')}>
           <Icon as={BiPlus} fontSize="4xl" />
         </Button>

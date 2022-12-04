@@ -19,7 +19,6 @@ import { useQuery } from '@tanstack/react-query';
 import { eachDayOfInterval, endOfDay, format, isAfter, startOfDay, subDays } from 'date-fns';
 import { get, groupBy, sortBy } from 'lodash';
 import { useMemo, useState } from 'react';
-import { useLocalStorage } from 'react-use';
 
 import { SelfTalkItem } from '@/components/SelfTalkItem';
 import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backend';
@@ -40,8 +39,8 @@ export const SelfTalksGraph = () => {
     [afterOn, beforeOn],
   );
 
-  const [beforeHour, setBeforeHour] = useLocalStorage('graph_before_hour', 24);
-  const [afterHour, setAfterHour] = useLocalStorage('graph_after_hour', 6);
+  const [beforeHour, setBeforeHour] = useState(24);
+  const [afterHour, setAfterHour] = useState(6);
   const hourRange = useMemo(
     () =>
       [...Array(beforeHour! - afterHour!).keys()]
@@ -109,7 +108,7 @@ export const SelfTalksGraph = () => {
                                   <PopoverTrigger>
                                     <HStack spacing="0.5" w="max-content">
                                       {emotions.length == 0 && (
-                                        <Box w="3" h="3" rounded="full" bg="gray.200" />
+                                        <Box w="3" h="3" rounded="full" bg="gray.00" />
                                       )}
                                       {emotions.map(([k]) => (
                                         <Box key={k} w="3" h="3" rounded="full" bg={`${k}.500`} />
