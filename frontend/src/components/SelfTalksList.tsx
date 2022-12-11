@@ -23,10 +23,8 @@ export const SelfTalksList = () => {
   const selfTalks = useInfiniteQuery({
     queryKey: ['self_talks'],
     queryFn: ({ pageParam = new Date().toISOString() }) => getSelfTalks({ before: pageParam }),
-    getNextPageParam: (lastPage) => lastPage.at(-1)?.createdAt,
+    getNextPageParam: (lastPage) => lastPage[lastPage.length - 1]?.createdAt,
   });
-
-  console.log(selfTalks.data?.pages.flatMap((g) => g));
 
   return (
     <Stack>
