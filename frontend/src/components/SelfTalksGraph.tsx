@@ -20,6 +20,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import {
   addDays,
+  differenceInDays,
   eachDayOfInterval,
   endOfDay,
   format,
@@ -38,8 +39,9 @@ import { getSelfTalksGraph as getSelfTalksGraphFn, SelfTalk } from '@/lib/backen
 import { EMOTION_KEYS } from '@/lib/constants';
 
 export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boolean }) => {
+  const [storedDateDiff, setStoredDateDiff] = useLocalStorage('graph_date_diff', 1);
   const [beforeAt, setBeforeAt] = useState(endOfDay(new Date()));
-  const [afterAt, setAfterAt] = useState(startOfDay(subDays(new Date(), 1)));
+  const [afterAt, setAfterAt] = useState(startOfDay(subDays(new Date(), storedDateDiff!)));
   const before = useMemo(() => beforeAt.toISOString(), [beforeAt]);
   const after = useMemo(() => afterAt.toISOString(), [afterAt]);
   const dateRange = useMemo(
@@ -100,10 +102,14 @@ export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boole
     });
   };
   useUnmount(() => {
+    setStoredDateDiff(differenceInDays(beforeAt, afterAt));
+
     setStoredBeforeHour(beforeHour);
     setStoredAfterHour(afterHour);
   });
   useEvent('beforeunload', () => {
+    setStoredDateDiff(differenceInDays(beforeAt, afterAt));
+
     setStoredBeforeHour(beforeHour);
     setStoredAfterHour(afterHour);
   });
@@ -233,11 +239,7 @@ export const SelfTalksGraph = ({ isFilterPanelOpen }: { isFilterPanelOpen: boole
                                       ))}
                                     </HStack>
                                   </PopoverTrigger>
-                                  <PopoverContent
-                                    w="max-content"
-                                    maxW="300px"
-                                    transform="translateX(-5px)!important"
-                                  >
+                                  <PopoverContent w="max-content" maxW="300px">
                                     <PopoverBody>
                                       <SelfTalkItem selfTalk={v} />
                                     </PopoverBody>
